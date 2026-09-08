@@ -16,12 +16,19 @@ interface IActiveRecord {
      * @param int $id Unique identifier of the object
      * @return static|null
      */
-    public function findById(int $id): ?object;
+    public static function findById(int $id): ?object;
 
     /**
      * Requests an array of all objects of the table
      *
      * @return static[]
      */
-    public function findAll(): array;
+    public static function findAll(): array;
+
+    /**
+     * Removes the object from the database
+     *
+     * @return void
+     */
+    public function delete(): void;
 }
