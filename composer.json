@@ -2,9 +2,15 @@
     "name": "joao-prrvz/php-active-record",
     "description": "An implementation of the active record patern",
     "type": "library",
+    "license": "CC-BY-4.0",
     "autoload": {
         "psr-4": {
-            "joao-prrvz\\PHPActiveRecord\\": "src/"
+            "PHPActiveRecord\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PHPActiveRecord\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -13,5 +19,10 @@
             "email": "pereiravaz.joaovictor@gmail.com"
         }
     ],
-    "require": {}
+    "scripts": {
+        "test": "phpunit"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    }
 }
