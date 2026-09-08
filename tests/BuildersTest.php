@@ -13,7 +13,7 @@ class BuildersTest extends TestCase
     {
         $builder = new QueryBuilder();
         $sql = $builder->insert("User", ["id", "name", "email"]);
-        $this->assertSame("INSERT INTO `User` (`id`, `name`, `email`) (?, ?, ?)", $sql);
+        $this->assertSame("INSERT INTO `User` (`id`, `name`, `email`) VALUES (?, ?, ?)", $sql);
     }
 
     #[Test]
@@ -31,7 +31,7 @@ class BuildersTest extends TestCase
         $sql = $builder->update("User", ["id", "name", "email"], [ 
             new QueryCondition("`User`.`id` = ?")
         ]);
-        $this->assertSame("UPDATE `User` SET `User`.`id` = ?, `User`.`name` = ?, `User`.`email` = ? WHERE `User`.`id` = ?", $sql);
+        $this->assertSame("UPDATE `User` SET `id` = ?, `name` = ?, `email` = ? WHERE `User`.`id` = ?", $sql);
     }
 
     #[Test]
