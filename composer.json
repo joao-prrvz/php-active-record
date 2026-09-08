@@ -1,0 +1,17 @@
+{
+    "name": "joao-prrvz/php-active-record",
+    "description": "An implementation of the active record patern",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "joao-prrvz\\PHPActiveRecord\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joao Victor Pereira Vaz",
+            "email": "pereiravaz.joaovictor@gmail.com"
+        }
+    ],
+    "require": {}
+}
