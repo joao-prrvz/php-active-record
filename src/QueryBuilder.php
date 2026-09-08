@@ -3,7 +3,7 @@ namespace PHPActiveRecord;
 
 use PHPActiveRecord\QueryCondition;
 
-class QueryBuilder
+class QueryBuilder implements IQueryBuilder
 {
     /**
      * Undocumented function
@@ -25,7 +25,7 @@ class QueryBuilder
     {
         $params = str_repeat("?, ", count($columns) - 1). "?";
         $columns = implode("`, `", $columns);
-        return "INSERT INTO `$table` (`$columns`) ($params)";
+        return "INSERT INTO `$table` (`$columns`) VALUES ($params)";
     }
 
     public function select(string $table, array $columns, array $conditions = []): string
@@ -37,9 +37,9 @@ class QueryBuilder
 
     public function update(string $table, array $columns, array $conditions): string
     {
-        $columns = implode("` = ?, `$table`.`", $columns);
+        $columns = implode("` = ?, `", $columns);
         $conditions = $this->conditions($conditions);
-        return rtrim("UPDATE `$table` SET `$table`.`$columns` = ? $conditions");
+        return rtrim("UPDATE `$table` SET `$columns` = ? $conditions");
     }
 
     public function delete(string $table, array $conditions): string
