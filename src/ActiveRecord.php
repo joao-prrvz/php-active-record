@@ -4,15 +4,14 @@ namespace PHPActiveRecord;
 use Override;
 use PDO;
 use PDOStatement;
+use PHPActiveRecord\Attributes\Table;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionProperty;
 
 abstract class ActiveRecord implements IActiveRecord
 {
-    private static ?string $_table = null;
     private static PDO $_pdo;
-    /** @var array<string, string> */
-    private static array $_columns = [];
 
     protected static IQueryBuilder $builder;
     
@@ -22,12 +21,14 @@ abstract class ActiveRecord implements IActiveRecord
      * @return string
      */
     public static function getTable(): string 
-    { 
-        if (static::$_table === null) {
-            $path = explode("\\", static::class);
-            static::$_table = end($path);
-        }
-        return static::$_table;
+    {
+        $ref = new ReflectionClass(static::class);
+        /** @var ?ReflectionAttribute<Table> $refTable */
+        $refTable = $ref->getAttributes(Table::class)[0] ?? null;
+        if ($refTable !== null)
+            return $refTable->newInstance()->name;
+        $path = explode("\\", static::class);
+        return end($path);
     }
 
     /**
@@ -47,14 +48,13 @@ abstract class ActiveRecord implements IActiveRecord
      */
     public static function getColumns(): array
     {
-        if (count(static::$_columns) < 1) {
-            $refProps = new ReflectionClass(static::class)->getProperties();
-            $refProps = array_filter($refProps, fn(ReflectionProperty $p) => $p->getDeclaringClass()->name == static::class);
-            foreach ($refProps as $refProp) {
-                static::$_columns[$refProp->name] = $refProp->name;
-            }
+        $refProps = new ReflectionClass(static::class)->getProperties();
+        $refProps = array_filter($refProps, fn(ReflectionProperty $p) => $p->getDeclaringClass()->name == static::class);
+        $columns = [];
+        foreach ($refProps as $refProp) {
+            $columns[$refProp->name] = $refProp->name;
         }
-        return static::$_columns;
+        return $columns;
     }
 
     /**
