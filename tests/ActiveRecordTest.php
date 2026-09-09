@@ -27,15 +27,24 @@ class ActiveRecordTest extends TestCase {
     #[Test]
     public function insert()
     {
-        $user = User::new("Test", "test@test.com");
+        $user = new User("Test", "test@test.com");
         $user->save();
         $this->assertNotNull(User::findById($user->id));
     }
 
     #[Test]
+    public function insert_with_foreign_object()
+    {
+        $user = User::findById(1);
+        $commande = new Commande($user, "Test prod", 1);
+        $commande->save();
+        $this->assertNotNull(Commande::findById($commande->id));
+    }
+
+    #[Test]
     public function update()
     {
-        $user = User::new("Test2", "test2@test.com");
+        $user = new User("Test2", "test2@test.com");
         $user->save();
         $this->assertSame("Test2", User::findById($user->id)->name);
         $user->name = "Test2 - updated";
@@ -46,7 +55,7 @@ class ActiveRecordTest extends TestCase {
     #[Test]
     public function delete()
     {
-        $user = User::new("Test3", "test3@test.com");
+        $user = new User("Test3", "test3@test.com");
         $user->save();
         $this->assertSame("Test3", User::findById($user->id)->name);
         $user->delete();

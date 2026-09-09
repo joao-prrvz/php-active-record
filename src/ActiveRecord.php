@@ -74,6 +74,41 @@ abstract class ActiveRecord implements IActiveRecord
     }
 
     /**
+     * Undocumented function
+     *
+     * @return array<string, ForeignKey>
+     */
+    public static function getForeignKeys(): array
+    {
+        $refProps = new ReflectionClass(static::class)->getProperties();
+        $fks = [];
+        foreach ($refProps as $refProp) {
+            $fk = $refProp->getAttributes(ForeignKey::class)[0] ?? null;
+            if ($fk !== null)
+                $fks[$refProp->getName()] = $fk->newInstance();
+        }
+        return $fks;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return array<string, ForeignKey>
+     */
+    public static function getForeignObjects(): array
+    {
+        $fks = static::getForeignKeys();
+        $fobjs = [];
+        $ref = new ReflectionClass(static::class);
+        foreach ($fks as $propName => $fk) {
+            $type = $ref->getProperty($propName)->getType();
+            if ($type instanceof ReflectionNamedType && class_exists($type->getName()))
+                $fobjs[$propName] = $fk;
+        }
+        return $fobjs;
+    }
+
+    /**
      * Instanciates the $pdo object for all children classes
      *
      * @param string $dsn
@@ -178,11 +213,27 @@ abstract class ActiveRecord implements IActiveRecord
     private function insert(): int
     {
         $columns = static::getColumns();
+        $fobjs = static::getForeignObjects();
+        $ref = new ReflectionClass($this);
+        $fks = array_map(fn($fk) => $fk->name, $fobjs);
         unset($columns["id"]);
-        $sql = static::$builder->insert(static::getTable(), $columns);
+        $sql = static::$builder->insert(static::getTable(), [...$columns, ...$fks]);
         $params = [];
-        foreach ($columns as $prop => $column)
-            $params[] = $this->$prop;
+        foreach ([...$columns, ...$fks] as $prop => $column) {
+            $refProp = $ref->getProperty($prop);
+            $refType = $refProp->getType();
+            if (!($refType instanceof ReflectionNamedType))
+                throw new Exception("Union types aren't supported");
+            if (class_exists($refType->getName())) {
+                $refClass = new ReflectionClass($refType->getName());
+                $refMethod = $refClass->getMethod("getPrimaryKey");
+                /** @var ReflectionProperty */
+                $refKey = $refMethod->invoke(null);
+                $params[] = $refKey->getValue($refProp->getValue($this));
+            }
+            else
+                $params[] = $refProp->getValue($this);
+        }
         static::run($sql, $params);
         return (int)static::getPDO()->lastInsertId();
     }
@@ -289,7 +340,7 @@ abstract class ActiveRecord implements IActiveRecord
     public static function instanciate(array $data): object
     {
         $refClass = new ReflectionClass(static::class);
-        $obj = $refClass->newInstance();
+        $obj = $refClass->newInstanceWithoutConstructor();
         foreach (static::getColumns() as $prop => $column) 
         {
             $refProp = $refClass->getProperty($prop);
