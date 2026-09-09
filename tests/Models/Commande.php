@@ -11,4 +11,11 @@ class Commande extends ActiveRecord
     public User $user;
     public string $product;
     public float $amount;
+
+    public function __construct(User $user, string $product, float $amount)
+    {
+        $this->user = $user;
+        $this->product = $product;
+        $this->amount = $amount;
+    }
 }
