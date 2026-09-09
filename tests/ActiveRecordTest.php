@@ -1,6 +1,7 @@
 <?php
 namespace PHPActiveRecord\Tests;
 
+use PHPActiveRecord\Tests\Models\Commande;
 use PHPActiveRecord\Tests\Models\User;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -50,5 +51,22 @@ class ActiveRecordTest extends TestCase {
         $this->assertSame("Test3", User::findById($user->id)->name);
         $user->delete();
         $this->assertNull(User::findById($user->id));
+    }
+
+    #[Test]
+    public function include_single()
+    {
+        $command = Commande::findById(1);
+        $command->include("user");
+        $this->assertInstanceOf(User::class, $command->user);
+    }
+
+    #[Test]
+    public function include_multiple()
+    {
+        $user = User::findById(1);
+        $user->include("commands");
+        foreach ($user->commands as $command)
+            $this->assertInstanceOf(Commande::class, $command);
     }
 }
