@@ -1,6 +1,7 @@
 <?php
 namespace PHPActiveRecord;
 
+use Override;
 use PHPActiveRecord\QueryCondition;
 
 class QueryBuilder implements IQueryBuilder
@@ -21,6 +22,7 @@ class QueryBuilder implements IQueryBuilder
         return "$result";
     }
 
+    #[Override]
     public function insert(string $table, array $columns): string
     {
         $params = str_repeat("?, ", count($columns) - 1). "?";
@@ -28,6 +30,7 @@ class QueryBuilder implements IQueryBuilder
         return "INSERT INTO `$table` (`$columns`) VALUES ($params)";
     }
 
+    #[Override]
     public function select(string $table, array $columns, array $conditions = []): string
     {
         $columns = implode("`, `", $columns);
@@ -35,6 +38,7 @@ class QueryBuilder implements IQueryBuilder
         return rtrim("SELECT `$columns` FROM `$table` $conditions");
     }
 
+    #[Override]
     public function update(string $table, array $columns, array $conditions): string
     {
         $columns = implode("` = ?, `", $columns);
@@ -42,6 +46,7 @@ class QueryBuilder implements IQueryBuilder
         return rtrim("UPDATE `$table` SET `$columns` = ? $conditions");
     }
 
+    #[Override]
     public function delete(string $table, array $conditions): string
     {
         $conditions = $this->conditions($conditions);

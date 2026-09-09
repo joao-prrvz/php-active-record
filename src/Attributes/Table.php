@@ -2,10 +2,15 @@
 namespace PHPActiveRecord\Attributes;
 
 use Attribute;
-
+/** Defines the table name in the database */
 #[Attribute(Attribute::TARGET_CLASS)]
 class Table
 {
-    public function __construct(public string $name)
-    { }
+    /** Name of the table in the database */
+    public string $name;
+    
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
 }
