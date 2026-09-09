@@ -10,6 +10,7 @@ interface IActiveRecord {
      * @return void
      */
     public function save(): void;
+    
     /**
      * Requests for the object having the ID passed if not found returns null
      *

@@ -112,7 +112,38 @@ abstract class ActiveRecord implements IActiveRecord
         self::getPDO()->exec($sql);
     }
 
+    /**
+     * Starts a transaction
+     *
+     * @return void
+     */
+    public function beginTransaction()
+    {
+        if (!self::getPDO()->inTransaction())
+            self::getPDO()->beginTransaction();
+    }
 
+    /**
+     * Applies the changes of the transaction
+     *
+     * @return void
+     */
+    public function commit()
+    {
+        if (self::getPDO()->inTransaction())
+            self::getPDO()->commit();
+    }
+
+    /**
+     * Cancels the changes of the transaction
+     *
+     * @return void
+     */
+    public function rollBack()
+    {
+        if (self::getPDO()->inTransaction())
+            self::getPDO()->rollBack();
+    }
 
     #[Override]
     public function save(): void
