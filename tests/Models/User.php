@@ -12,11 +12,9 @@ class User extends ActiveRecord
     #[DB\ForeignKey("userId", Commande::class)]
     public array $commands;
 
-    public static function new(string $name, string $email): User
+    public function __construct(string $name, string $email)
     {
-        $user = new User;
-        $user->name = $name;
-        $user->email = $email;
-        return $user;
+        $this->name = $name;
+        $this->email = $email;
     }
 }
