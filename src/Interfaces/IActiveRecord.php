@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPActiveRecord;
+namespace PHPActiveRecord\Interfaces;
 
 interface IActiveRecord {
 

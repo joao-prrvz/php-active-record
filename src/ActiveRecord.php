@@ -7,6 +7,8 @@ use PDO;
 use PDOStatement;
 use PHPActiveRecord\Attributes\ForeignKey;
 use PHPActiveRecord\Attributes\Table;
+use PHPActiveRecord\Interfaces\IActiveRecord;
+use PHPActiveRecord\Interfaces\IQueryBuilder;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;

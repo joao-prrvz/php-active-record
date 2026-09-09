@@ -1,5 +1,5 @@
 <?php
-namespace PHPActiveRecord;
+namespace PHPActiveRecord\Interfaces;
 
 use PHPActiveRecord\QueryCondition;
 

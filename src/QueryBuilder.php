@@ -2,6 +2,7 @@
 namespace PHPActiveRecord;
 
 use Override;
+use PHPActiveRecord\Interfaces\IQueryBuilder;
 use PHPActiveRecord\QueryCondition;
 
 class QueryBuilder implements IQueryBuilder
