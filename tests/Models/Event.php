@@ -9,16 +9,17 @@ class Event extends ActiveRecord
     public string $id;
     public string $title;
     public string $description;
-    public string $event_date;
+    #[DB\Column("event_date")]
+    public string $eventDate;
     public int $capacity;
     #[DB\ForeignKey("owner_id")]
     public User $owner;
 
-    public function __construct(string $title, string $description, string $event_date, int $capacity, User $owner)
+    public function __construct(string $title, string $description, string $eventDate, int $capacity, User $owner)
     {
         $this->title = $title;
         $this->description = $description;
-        $this->event_date = $event_date;
+        $this->eventDate = $eventDate;
         $this->capacity = $capacity;
         $this->owner = $owner;
     }
