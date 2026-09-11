@@ -20,6 +20,7 @@ CREATE TABLE "Event" (
 );
 
 CREATE TABLE "Registration" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "user_id" INTEGER NOT NULL,
     "event_id" INTEGER NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -28,6 +29,5 @@ CREATE TABLE "Registration" (
         ON DELETE CASCADE ON UPDATE RESTRICT,
     CONSTRAINT fk_registration_event
         FOREIGN KEY ("event_id") REFERENCES "Event"("id")
-        ON DELETE CASCADE ON UPDATE RESTRICT,
-    PRIMARY KEY("user_id", "event_id")
+        ON DELETE CASCADE ON UPDATE RESTRICT
 );
