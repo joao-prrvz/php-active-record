@@ -5,6 +5,7 @@ use Exception;
 use Override;
 use PDO;
 use PDOStatement;
+use PHPActiveRecord\Attributes\Column;
 use PHPActiveRecord\Attributes\ForeignKey;
 use PHPActiveRecord\Attributes\Table;
 use PHPActiveRecord\Interfaces\IActiveRecord;
@@ -58,8 +59,13 @@ abstract class ActiveRecord implements IActiveRecord
             count($p->getAttributes(ForeignKey::class)) < 1;
         });
         $columns = [];
-        foreach ($refProps as $refProp)
-            $columns[$refProp->name] = $refProp->name;
+        foreach ($refProps as $refProp) {
+            $refAttr = $refProp->getAttributes(Column::class)[0] ?? null;
+            if ($refAttr == null)
+                $columns[$refProp->name] = $refProp->name;
+            else
+                $columns[$refProp->name] = $refAttr->newInstance()->name;
+        }
         return $columns;
     }
 
