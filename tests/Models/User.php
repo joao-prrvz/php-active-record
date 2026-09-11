@@ -7,14 +7,16 @@ use PHPActiveRecord\Attributes as DB;
 class User extends ActiveRecord
 {
     public int $id;
-    public string $name;
-    public string $email;
-    #[DB\ForeignKey("userId", Commande::class)]
-    public array $commands;
+    public string $username;
+    public string $password;
+    public string $role;
+    #[DB\ForeignKey("owner_id", Event::class)]
+    public array $events;
 
-    public function __construct(string $name, string $email)
+    public function __construct(string $username, string $password, string $role = "member")
     {
-        $this->name = $name;
-        $this->email = $email;
+        $this->username = $username;
+        $this->password = password_hash($password, PASSWORD_BCRYPT);
+        $this->role = $role;
     }
 }

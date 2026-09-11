@@ -224,18 +224,23 @@ abstract class ActiveRecord implements IActiveRecord
             $refType = $refProp->getType();
             if (!($refType instanceof ReflectionNamedType))
                 throw new Exception("Union types aren't supported");
-            if (class_exists($refType->getName())) {
-                $refClass = new ReflectionClass($refType->getName());
-                $refMethod = $refClass->getMethod("getPrimaryKey");
-                /** @var ReflectionProperty */
-                $refKey = $refMethod->invoke(null);
-                $params[] = $refKey->getValue($refProp->getValue($this));
-            }
+            $className = $refType->getName();
+            if (class_exists($className))
+                $params[] = $this->getForeignObjectPrimaryKey($refProp, $className);
             else
                 $params[] = $refProp->getValue($this);
         }
         static::run($sql, $params);
         return (int)static::getPDO()->lastInsertId();
+    }
+
+    private function getForeignObjectPrimaryKey(ReflectionProperty $refProp, string $className)
+    {
+        $refClass = new ReflectionClass($className);
+        $refMethod = $refClass->getMethod("getPrimaryKey");
+        /** @var ReflectionProperty */
+        $refKey = $refMethod->invoke(null);
+        return $refKey->getValue($refProp->getValue($this));
     }
 
     #[Override]
