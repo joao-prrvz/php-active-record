@@ -2,9 +2,12 @@
 namespace PHPActiveRecord\Tests;
 
 use PHPActiveRecord\Tests\Models\Event;
+use PHPActiveRecord\Tests\Models\Registration;
 use PHPActiveRecord\Tests\Models\User;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Metadata\Parser\Registry;
+use RegexIterator;
 
 class ActiveRecordTest extends TestCase {
     
@@ -78,5 +81,13 @@ class ActiveRecordTest extends TestCase {
         $user->include("events");
         foreach ($user->events as $event)
             $this->assertInstanceOf(Event::class, $event);
+    }
+
+    #[Test]
+    public function auto_include()
+    {
+        $reg = Registration::findById(1);
+        $this->assertTrue(isset($reg->user));
+        $this->assertTrue(isset($reg->event));
     }
 }

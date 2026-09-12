@@ -351,12 +351,14 @@ abstract class ActiveRecord implements IActiveRecord
     public static function instanciate(array $data): object
     {
         $refClass = new ReflectionClass(static::class);
+        /** @var ActiveRecord */
         $obj = $refClass->newInstanceWithoutConstructor();
-        foreach (static::getColumns() as $prop => $column) 
-        {
+        foreach (static::getColumns() as $prop => $column) {
             $refProp = $refClass->getProperty($prop);
             $refProp->setValue($obj, $data[$column]);
         }
+        foreach (static::getForeignObjects() as $propName => $fk)
+            $obj->include($propName);
         return $obj;
     }
 }

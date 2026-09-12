@@ -14,6 +14,7 @@ class Event extends ActiveRecord
     public int $capacity;
     #[DB\ForeignKey("owner_id")]
     public User $owner;
+    //public array $participants;
 
     public function __construct(string $title, string $description, string $eventDate, int $capacity, User $owner)
     {

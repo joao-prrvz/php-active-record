@@ -18,13 +18,16 @@ class ForeignKey
      */
     public ?string $type;
 
+    public bool $autoInclude;
+
     /**
      * @param string $name
      * @param ?class-string<ActiveRecord> $type
      */
-    public function __construct(string $name, ?string $type = null)
+    public function __construct(string $name, ?string $type = null, bool $autoInclude = false)
     {
         $this->name = $name;
         $this->type = $type;
+        $this->autoInclude = $autoInclude;
     }
 }
