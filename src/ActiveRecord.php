@@ -5,12 +5,9 @@ use Exception;
 use Override;
 use PDO;
 use PDOStatement;
-use PHPActiveRecord\Attributes\Block;
-use PHPActiveRecord\Attributes\Column;
-use PHPActiveRecord\Attributes\ForeignKey;
-use PHPActiveRecord\Attributes\Table;
 use PHPActiveRecord\Interfaces\IActiveRecord;
 use PHPActiveRecord\Interfaces\IQueryBuilder;
+use PHPActiveRecord\Attributes as DB;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -29,8 +26,8 @@ abstract class ActiveRecord implements IActiveRecord
     public static function getTable(): string 
     {
         $ref = new ReflectionClass(static::class);
-        /** @var ?ReflectionAttribute<Table> $refTable */
-        $refTable = $ref->getAttributes(Table::class)[0] ?? null;
+        /** @var ?ReflectionAttribute<DB\Table> $refTable */
+        $refTable = $ref->getAttributes(DB\Table::class)[0] ?? null;
         if ($refTable !== null)
             return $refTable->newInstance()->name;
         $path = explode("\\", static::class);
@@ -56,17 +53,41 @@ abstract class ActiveRecord implements IActiveRecord
     {
         $refProps = new ReflectionClass(static::class)->getProperties();
         $refProps = array_filter($refProps, function(ReflectionProperty $p) {
-            return !$p->isStatic() && count($p->getAttributes(Block::class)) < 1 &&
-            count($p->getAttributes(ForeignKey::class)) < 1;
+            return !$p->isStatic() && count($p->getAttributes(DB\Block::class)) < 1 &&
+            count($p->getAttributes(DB\ForeignKey::class)) < 1;
         });
         $columns = [];
         foreach ($refProps as $refProp) {
-            $refAttr = $refProp->getAttributes(Column::class)[0] ?? null;
+            $refAttr = $refProp->getAttributes(DB\Column::class)[0] ?? null;
             if ($refAttr == null)
                 $columns[$refProp->name] = $refProp->name;
             else
                 $columns[$refProp->name] = $refAttr->newInstance()->name;
         }
+        return $columns;
+    }
+
+    public static function getColumnsInsert(): array
+    {
+        $columns = static::getColumns();
+        $ref = new ReflectionClass(static::class);
+        $columns = array_filter($columns, 
+        function($c, $p) use ($ref) {
+            $refAttr = $ref->getProperty($p)->getAttributes(DB\Block::class)[0] ?? null;
+            return $refAttr == null || $refAttr->newInstance()->value != DB\Block::INSERT;
+        }, ARRAY_FILTER_USE_BOTH);
+        return $columns;
+    }
+
+    public static function getColumnsUpdate(): array
+    {
+        $columns = static::getColumns();
+        $ref = new ReflectionClass(static::class);
+        $columns = array_filter($columns, 
+        function($c, $p) use ($ref) {
+            $refAttr = $ref->getProperty($p)->getAttributes(DB\Block::class)[0] ?? null;
+            return $refAttr == null || $refAttr->newInstance()->value != DB\Block::UPDATE;
+        }, ARRAY_FILTER_USE_BOTH);
         return $columns;
     }
 
@@ -83,14 +104,14 @@ abstract class ActiveRecord implements IActiveRecord
     /**
      * Undocumented function
      *
-     * @return array<string, ForeignKey>
+     * @return array<string, DB\ForeignKey>
      */
     public static function getForeignKeys(): array
     {
         $refProps = new ReflectionClass(static::class)->getProperties();
         $fks = [];
         foreach ($refProps as $refProp) {
-            $fk = $refProp->getAttributes(ForeignKey::class)[0] ?? null;
+            $fk = $refProp->getAttributes(DB\ForeignKey::class)[0] ?? null;
             if ($fk !== null)
                 $fks[$refProp->getName()] = $fk->newInstance();
         }
@@ -100,7 +121,7 @@ abstract class ActiveRecord implements IActiveRecord
     /**
      * Undocumented function
      *
-     * @return array<string, ForeignKey>
+     * @return array<string, DB\ForeignKey>
      */
     public static function getForeignObjects(): array
     {
@@ -206,7 +227,7 @@ abstract class ActiveRecord implements IActiveRecord
     private function update(): void
     {
         $table = static::getTable();
-        $columns = static::getColumns();
+        $columns = static::getColumnsUpdate();
         $sql = static::$builder->update($table, $columns, [
             new QueryCondition("`$table`.`id` = ?")
         ]);
@@ -219,7 +240,7 @@ abstract class ActiveRecord implements IActiveRecord
 
     private function insert(): int
     {
-        $columns = static::getColumns();
+        $columns = static::getColumnsInsert();
         $fobjs = static::getForeignObjects();
         $ref = new ReflectionClass($this);
         $fks = array_map(fn($fk) => $fk->name, $fobjs);
@@ -287,7 +308,7 @@ abstract class ActiveRecord implements IActiveRecord
     }
 
     /**
-     * Requests for an object with the attribute {@see ForeignKey}
+     * Requests for an object with the attribute {@see DB\ForeignKey}
      *
      * @param string $propertyName
      * @return void
@@ -296,7 +317,7 @@ abstract class ActiveRecord implements IActiveRecord
     {
         $ref = new ReflectionClass($this);
         $refProp = $ref->getProperty($propertyName);
-        $refAttr = $refProp->getAttributes(ForeignKey::class)[0] ?? null;
+        $refAttr = $refProp->getAttributes(DB\ForeignKey::class)[0] ?? null;
         if ($refAttr == null)
             throw new Exception("The property '$propertyName' doesn't have the attribute ForeignKey");
         $refType = $refProp->getType();
@@ -312,7 +333,7 @@ abstract class ActiveRecord implements IActiveRecord
         $this->includeSingle($refProp, $refAttr->newInstance());
     }
 
-    private function includeSingle(ReflectionProperty $refProp, ForeignKey $attr): void
+    private function includeSingle(ReflectionProperty $refProp, DB\ForeignKey $attr): void
     {
         $refType = $refProp->getType();
         $table = static::getTable();
@@ -328,7 +349,7 @@ abstract class ActiveRecord implements IActiveRecord
         }
     }
 
-    private function includeMultiple(ReflectionProperty $refProp, ForeignKey $attr): void
+    private function includeMultiple(ReflectionProperty $refProp, DB\ForeignKey $attr): void
     {
         $table = $attr->type::getTable();
         $sql = static::$builder->select($table, $attr->type::getColumns(), [

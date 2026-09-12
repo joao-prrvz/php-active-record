@@ -3,6 +3,7 @@ namespace PHPActiveRecord\Tests\Models;
 
 use PHPActiveRecord\ActiveRecord;
 use PHPActiveRecord\Attributes as DB;
+use PHPActiveRecord\QueryCondition;
 
 class Event extends ActiveRecord
 {
@@ -14,7 +15,15 @@ class Event extends ActiveRecord
     public int $capacity;
     #[DB\ForeignKey("owner_id")]
     public User $owner;
-    //public array $participants;
+
+    #[DB\Block]
+    public int $capacityLeft {
+        get {
+            $sql = static::$builder->select(Registration::getTable(), ["COUNT(*)"], [new QueryCondition("event_id = ?")], false);
+            $sttmt = static::run($sql, [$this->id]);
+            return $this->capacity - (int)$sttmt->fetch()["COUNT(*)"];
+        }
+    }
 
     public function __construct(string $title, string $description, string $eventDate, int $capacity, User $owner)
     {

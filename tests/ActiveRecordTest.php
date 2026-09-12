@@ -6,8 +6,6 @@ use PHPActiveRecord\Tests\Models\Registration;
 use PHPActiveRecord\Tests\Models\User;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Metadata\Parser\Registry;
-use RegexIterator;
 
 class ActiveRecordTest extends TestCase {
     

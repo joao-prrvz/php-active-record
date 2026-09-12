@@ -22,7 +22,7 @@ interface IQueryBuilder
      * @param QueryCondition[] $conditions
      * @return string
      */
-    public function select(string $table, array $columns, array $conditions = []): string;
+    public function select(string $table, array $columns, array $conditions = [], bool $addBacktick = true): string;
 
     /**
      * Generates an update SQL query

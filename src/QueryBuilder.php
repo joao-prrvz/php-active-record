@@ -32,11 +32,12 @@ class QueryBuilder implements IQueryBuilder
     }
 
     #[Override]
-    public function select(string $table, array $columns, array $conditions = []): string
+    public function select(string $table, array $columns, array $conditions = [], bool $addBacktick = true): string
     {
-        $columns = implode("`, `", $columns);
+        $char = $addBacktick ? "`" : "";
+        $columns = implode("$char, $char", $columns);
         $conditions = $this->conditions($conditions);
-        return rtrim("SELECT `$columns` FROM `$table` $conditions");
+        return rtrim("SELECT $char$columns$char FROM `$table` $conditions");
     }
 
     #[Override]
