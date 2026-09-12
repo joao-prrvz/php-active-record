@@ -232,8 +232,11 @@ abstract class ActiveRecord implements IActiveRecord
             new QueryCondition("`$table`.`id` = ?")
         ]);
         $params = [];
-        foreach ($columns as $prop => $column) 
-            $params[] = $this->$prop;
+        $ref = new ReflectionClass(static::class);
+        foreach ($columns as $propName => $column) {
+            $refProp = $ref->getProperty($propName);
+            $params[] = $refProp->getValue($this);
+        }
         $params[] = static::getPrimaryKey()->getValue($this);
         $this->run($sql, $params);
     }
