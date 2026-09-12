@@ -5,6 +5,7 @@ use Exception;
 use Override;
 use PDO;
 use PDOStatement;
+use PHPActiveRecord\Attributes\Block;
 use PHPActiveRecord\Attributes\Column;
 use PHPActiveRecord\Attributes\ForeignKey;
 use PHPActiveRecord\Attributes\Table;
@@ -55,7 +56,7 @@ abstract class ActiveRecord implements IActiveRecord
     {
         $refProps = new ReflectionClass(static::class)->getProperties();
         $refProps = array_filter($refProps, function(ReflectionProperty $p) {
-            return $p->getDeclaringClass()->name == static::class &&
+            return !$p->isStatic() && count($p->getAttributes(Block::class)) < 1 &&
             count($p->getAttributes(ForeignKey::class)) < 1;
         });
         $columns = [];
@@ -132,7 +133,7 @@ abstract class ActiveRecord implements IActiveRecord
      * Prepares and executes an SQL statement
      *
      * @param string $sql
-     * @param array<string, mixed> $params
+     * @param array<string|int, mixed> $params
      * @return PDOStatement
      */
     public static function run(string $sql, array $params = []): PDOStatement
